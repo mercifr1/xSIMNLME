@@ -43,6 +43,51 @@ tk0<-mcode_cache("tk0", code)
 #' Time matrix
 #'----------------------------------------------------
 
+illus_AUC<-data.frame(DOSE=c(0, 0.3, 1, 3, 10)) %>%
+  mutate(AUC=DOSE/5) %>%
+  mutate(KS=exp(0.5+(AUC/10)),
+          PHI=exp(0.7+(AUC*10))/(1+exp(0.7+(AUC*10))))
+
+g01_ybreaks<-c(0, 0.3, 1, 3, 10)
+g01_ylabs<-as.character(c(0, "", 1, 3, 10))
+g01<-ggplot(illus_AUC, aes(DOSE, AUC))+
+  geom_point()+
+  geom_line()+
+  scale_y_continuous("AUC (unit)", breaks=unique(illus_AUC$AUC))+
+  scale_x_continuous("Dose (mg Q3W iv)", breaks=g01_ybreaks, labels=g01_ylabs)+
+  theme_minimal()+
+  theme(panel.grid.minor=element_blank())
+
+g02_ybreaks<-round(unique(illus_AUC$KS), 2)
+g02_ylabs<-as.character(c(g02_ybreaks[1], "", "", g02_ybreaks[4], g02_ybreaks[5]))
+g02<-ggplot(illus_AUC, aes(KS, AUC))+
+  geom_point()+
+  geom_line()+
+  scale_y_continuous("", breaks=unique(illus_AUC$AUC))+
+  scale_x_continuous("KS (1/time)", breaks=g02_ybreaks, labels=g02_ylabs)+
+  theme_minimal()+
+  theme(panel.grid.minor=element_blank())
+
+g03_ybreaks<-round(unique(illus_AUC$PHI), 2)
+g03_ylabs<-as.character(g03_ybreaks)
+captxt<-paste0("R packages: tidyverse. mercief3/20200512")
+g03<-ggplot(illus_AUC, aes(PHI, AUC))+
+  geom_point()+
+  geom_line()+
+  scale_y_continuous("", breaks=unique(illus_AUC$AUC))+
+  scale_x_continuous("PHI", breaks=g03_ybreaks, labels=g03_ylabs)+
+  labs(caption=captxt)+
+  theme_minimal()+
+  theme(panel.grid.minor=element_blank())
+  
+gillus<-g01+g02+g03
+ggsave("./SimStepUp/Fig0.png", gillus, width=10, height=4, dpi=300)
+
+
+
+#' Time matrix
+#'----------------------------------------------------
+
 func_days<-function(nTAm, skel){
   rTAdys<-jitter(skel, amount=10)         #' Jitter TA days by 'amount' days
   TAyr<-round(rTAdys/365, 3)              #' Round to 3 digit years
